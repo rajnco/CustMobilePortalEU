@@ -1,16 +1,20 @@
 package rmqsreceiver
 
 import (
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-	"encoding/json"
+        "encoding/json"
+        "fmt"
+        "os"
+        "os/signal"
+        "syscall"
+        "strconv"
+        "net/http"
 
-	amqp "github.com/rabbitmq/amqp091-go"
-	log "github.com/sirupsen/logrus"
-	// "context"
-	// "strings"
+        "cust-mobile-eu/database/model"
+        "cust-mobile-eu/handler"
+
+        amqp "github.com/rabbitmq/amqp091-go"
+        log "github.com/sirupsen/logrus"
+        "github.com/prometheus/client_golang/prometheus"
 )
 
 type Receiver struct {
@@ -19,6 +23,7 @@ type Receiver struct {
 	queue   *amqp.Queue
 }
 
+/*
 type Product struct {
         Id          int     `json:"id"`
         Name        string  `json:"name"`
@@ -28,6 +33,22 @@ type Product struct {
         Discount    int     `json:"discount"` //MaxDiscountPercent
         Country     string  `json:"country"`
         Region      string  `json:"region"`
+}
+*/
+
+
+var (
+        IdAccessCounter = prometheus.NewCounterVec(
+                prometheus.CounterOpts{
+                        Name: "product_id_access_total_eu",
+                        Help: "Total number of times product ids are accessed",
+                },
+                []string{"id"},
+        )
+)
+
+func init() {
+        //prometheus.MustRegister(IdAccessCounter)
 }
 
 
@@ -68,7 +89,7 @@ func (r *Receiver) ReceiveMessage() error {
 		return err
 	}
 
-	var productJson Product
+	var productJson model.Product
 	
 	for message := range messages {
 		fmt.Println(string(message.Body))
@@ -77,7 +98,17 @@ func (r *Receiver) ReceiveMessage() error {
                         log.Printf("failed to parse json consumer message %+v ", err)
                 }
                 fmt.Println("Processed ", productJson)
-	
+                IdAccessCounter.WithLabelValues(strconv.Itoa(productJson.Id)).Inc()
+                
+                p := handler.Product{}
+                p.Build(nil)
+
+                status := p.UpsertProduct(&productJson)
+                if status == http.StatusOK {
+                        log.Printf("upsert worked fine")
+                } else {
+                        log.Printf("issue with upsert")
+                }
 	}
 	return nil
 }
