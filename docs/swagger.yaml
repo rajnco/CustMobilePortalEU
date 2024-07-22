@@ -1,0 +1,43 @@
+info:
+  contact: {}
+  description: This is Mobile Customer Portal System for EU Market .
+  title: Mobile Customer Portal System API - EU Market
+  version: "1.0"
+paths:
+  /product/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get method for particular product information from server
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+      summary: Get particular Product's information from the server
+      tags:
+      - Product
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get method for listing all the products from server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+      summary: List all Products information from the server
+      tags:
+      - Products
+swagger: "2.0"
