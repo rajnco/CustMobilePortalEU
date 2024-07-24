@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - .:/app
+    ports:
+    - "8082:8082"
