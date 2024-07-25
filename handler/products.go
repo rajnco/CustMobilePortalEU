@@ -40,8 +40,6 @@ func (p *Product) TotalCount() int64 {
 
 // GetProduct - get particular product from products list
 func (p *Product) GetProduct(id string) (response model.Product, status int) {
-        //var response model.Product
-
         //if err := p.db.Model(&model.Product{}).Where("id = ?", id).Find(&response).Error; err != nil {
         if err := p.db.Where("id = ?", id).Find(&response).Error; err != nil {
                 log.Printf("error retrive product from DB : %v", err)
@@ -71,7 +69,6 @@ func (p *Product) Clean() error {
         if result.Error != nil {
                 return result.Error
         }
-
         return nil
 }
 
@@ -87,7 +84,6 @@ func(p *Product) UpsertProduct(cproduct *model.Product) (status int) {
                 return
         }
         tx.Commit()
-
         status = http.StatusCreated
         return
 }

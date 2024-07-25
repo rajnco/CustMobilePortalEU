@@ -38,7 +38,6 @@ func main() {
 	receiver := rmqsreceiver.Connect("ProducedEU")
 	go receiver.ReceiveMessage()
 
-
         router := gin.Default()
 
         // programmatically set swagger info
@@ -52,7 +51,6 @@ func main() {
 
         mainGroup := router.Group("/")
         {
-
                 productsGroup := mainGroup.Group("/products")
                 {
                         productsGroup.GET("", controller.ListProducts)
@@ -67,12 +65,9 @@ func main() {
                 {
                         prometheusGroup.GET("", gin.WrapH(promhttp.Handler()))
                 }
-
         }
 
         // use ginSwagger middleware to serve the API docs
         router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-        
-
         router.Run(":8082")
 }
