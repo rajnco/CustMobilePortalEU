@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: custmobileeu
+    backend: three
+  name: custmobileeu
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custmobileeu
+      backend: three
+  template:
+    metadata:
+      labels:
+        app: productinfosys
+        backend: three
+    spec:
+      containers:
+      - image: 127.0.0.1:5000/custmobileeu:latest
+        name: custmobileeu
+        ports:
+        - containerPort: 8082
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+
+
+#--- k create deployment  custmobileeu  --image=custmobileeu  --replicas=1  --port=8082 --dry-run=client -o yaml  > Deployment.custmobileeu.yaml
+#
+#
+
+
+---
+
+
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: custmobileeu
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: custmobileeu
+  targetCPUUtilizationPercentage: 60
+status:
+  currentReplicas: 0
+  desiredReplicas: 0
+
